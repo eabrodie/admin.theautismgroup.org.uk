@@ -6,7 +6,10 @@
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
     "browserify-middleware": "^7.0.0",
+    "cookie-session": "^2.0.0-alpha.1",
     "express": "^4.13.3",
+    "passport": "^0.3.2",
+    "passport-github2": "^0.1.10",
     "prepare-response": "^1.1.3",
     "react": "^15.2.1",
     "react-dom": "^15.2.1"
@@ -18,7 +21,7 @@
   },
   "scripts": {
     "test": "echo No Tests",
-    "build": "babel src --out-dir lib && browserify lib/index.js > lib/index.js",
+    "build": "babel src --out-dir lib && browserify lib/index.js > lib/bundle.js",
     "predeploy": "npm i && npm run build && npm prune --prod",
     "deploy": "npm i heroku-release && heroku-release --app autism-group-admin"
   },

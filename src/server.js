@@ -1,13 +1,15 @@
 import {resolve} from 'path';
 import {readFileSync} from 'fs';
-
-var express = require('express');
+import passport from 'passport';
+import {Strategy as GitHubStrategy} from 'passport-github2';
+import cookieSession from 'cookie-session';
+import express from 'express';
 
 var app = express();
 
 if (process.env.NODE_ENV === 'production') {
   const prepare = require('prepare-response');
-  const client = prepare(readFileSync(__dirname + '/index.js'), {'content-type': 'js'})
+  const client = prepare(readFileSync(__dirname + '/bundle.js'), {'content-type': 'js'})
   app.get('/client.js', (req, res, next) => {
     client.send(req, res, next);
   });
@@ -16,10 +18,61 @@ if (process.env.NODE_ENV === 'production') {
   app.get('/client.js', browserify(__dirname + '/index.js', {transform: require('babelify')}))
 }
 
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
 
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
-app.get('/', (req, res, next) => {
-  res.sendFile(resolve(__dirname + '/../index.html'));
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/github/callback"
+  },
+  (accessToken, refreshToken, profile, done) => {
+    profile.accessToken = accessToken;
+    done(null, profile);
+  }
+));
+
+app.use(cookieSession({
+  keys: [process.env.SESSION_KEYS],
+  // session expires after 1 hour
+  maxAge: 60 * 60 * 1000,
+  // session is not accessible from JavaScript
+  httpOnly: true,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.sendFile(resolve(__dirname + '/../index.html'));
+  } else {
+    res.redirect('/auth/github');
+  }
+});
+
+app.get(
+  '/auth/github',
+  passport.authenticate('github', {
+    scope: [ 'user:email', 'public_repo' ]
+  })
+);
+
+app.get(
+  '/auth/github/callback',
+  passport.authenticate('github'),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
+
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
 });
 
 module.exports = app.listen(process.env.PORT || 3000);
