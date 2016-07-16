@@ -1,11 +1,6 @@
-'use strict';
-
-var express = require('express');
-
-var app = express();
-
-app.get('/', function (req, res, next) {
-  res.sendFile(__dirname + '/index.html');
-});
-
-module.exports = app.listen(3000);
+if (process.env.NODE_ENV === 'production') {
+  require('./lib/server.js');
+} else {
+  require('babel-register')
+  require('./src/server.js');
+}

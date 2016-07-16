@@ -5,9 +5,15 @@
   "dependencies": {
     "express": "^4.13.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-preset-forbeslindesay": "^2.0.1",
+    "babel-register": "^6.9.0"
+  },
   "scripts": {
     "test": "echo No Tests",
+    "build": "babel src --out-dir lib",
+    "predeploy": "npm i && npm run build && npm prune --prod",
     "deploy": "npm i heroku-release && heroku-release --app autism-group-admin"
   },
   "repository": {
