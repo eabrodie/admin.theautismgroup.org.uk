@@ -1,48 +1,73 @@
-import React from 'react';
+import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
+import RichTextEditor from 'react-rte-browserify';
 
-var container = document.getElementById('container');
+class HTMLEditor extends Component {
+  static propTypes = {
+    value: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+  };
 
-var Clock = React.createClass({
-  displayName: 'Clock',
-
-  getInitialState: function () {
-    return {
-      now: (new Date()).toString()
+  constructor (props) {
+    super(props);
+    this.state = {
+      richValue: RichTextEditor.createValueFromString(props.value, 'html'),
+      htmlValue: props.value,
     };
-  },
+  }
 
-  componentDidMount: function () {
-    this._interval = setInterval(function () {
+  componentWillReceiveProps (newProps) {
+    if (newProps.value != this.state.htmlValue) {
       this.setState({
-        now: (new Date()).toString()
+        richValue: RichTextEditor.createValueFromString(newProps.value, 'html'),
+        htmlValue: newProps.value,
       });
-    }.bind(this), 1000);
-  },
+    }
+  }
 
-  // componetWillMount is called when the component is about to be removed
-  // from the DOM.
-  //
-  // It is important to dispose of anything that was created in
-  // `componentDidMount`
-  componentWillUnmount: function () {
-    clearInterval(this._interval);
-  },
-  render: function () {
-    return React.createElement(
-      'p',
-      {},
-      'The time is: ',
-      React.createElement(
-        'b',
-        {},
-        this.state.now
-      )
+  onChange = (richValue) => {
+    this.setState({richValue, htmlValue: richValue.toString('html')}, () => {
+      this.props.onChange(this.state.htmlValue);
+    });
+  };
+
+  render () {
+    return (
+      <RichTextEditor
+        value={this.state.richValue}
+        onChange={this.onChange}
+      />
     );
   }
-});
+};
+
+class App extends Component {
+  state = {value: '<p>My Page</p>'};
+
+  _onChange = (value) => {
+    this.setState({value});
+  }
+
+  render() {
+    return (
+      <div>
+        <HTMLEditor value={this.state.value} onChange={this._onChange} />
+        <textarea
+          style={{
+            display: 'block',
+            width: '100%',
+            boxSizing: 'border-box',
+            marginTop: 8,
+          }}
+          value={this.state.value}
+          onChange={e => this._onChange(e.target.value)}
+        />
+      </div>
+    )
+  }
+}
 
 ReactDOM.render(
-  React.createElement(Clock, {}),
+  <App />,
   container
 );
