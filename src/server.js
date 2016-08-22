@@ -4,7 +4,10 @@ import passport from 'passport';
 import {Strategy as GitHubStrategy} from 'passport-github2';
 import cookieSession from 'cookie-session';
 import express from 'express';
+import github from 'github-basic';
+import base64decode from 'base64-decode';
 
+var client = github({version: 3});
 var app = express();
 
 if (process.env.NODE_ENV === 'production') {
@@ -74,5 +77,28 @@ app.get('/logout', (req, res) => {
   req.logout();
   res.redirect('/');
 });
+
+
+app.get('/content-types', (req, res) => {
+  //https://api.github.com/repos/eabrodie/theautismgroup.org.uk/contents/content
+  client.get('/repos/:owner/:repo/contents/:path', {
+    owner:'eabrodie',
+    repo:'theautismgroup.org.uk',
+    path:'content'
+  }).then(
+    files => Promise.all(
+      files.filter(
+        file => /\.toml$/.test(file.name)
+      ).map(
+        file => client.get('/repos/:owner/:repo/contents/:path', {
+          owner:'eabrodie',
+          repo:'theautismgroup.org.uk',
+          path:'content/' + file.name
+        }).then(file => base64decode(file.content))
+      )
+    )
+  ).done(result => res.json(result));
+});
+
 
 module.exports = app.listen(process.env.PORT || 3000);

@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 import RichTextEditor from 'react-rte-browserify';
+import request from 'then-request';
 
 class HTMLEditor extends Component {
   static propTypes = {
@@ -16,6 +17,24 @@ class HTMLEditor extends Component {
     };
   }
 
+/*
+  componentWillMount: function (e) {
+  e.preventDefault();
+  request('GET', '/content-type').getBody('utf8').then(JSON.parse).done(
+    function (items) {
+      this.setState({
+        numbers: items
+      });
+    }.bind(this),
+    function (err) {
+      console.log(err);
+    }
+  );
+}
+
+*/
+
+
   componentWillReceiveProps (newProps) {
     if (newProps.value != this.state.htmlValue) {
       this.setState({
@@ -30,6 +49,9 @@ class HTMLEditor extends Component {
       this.props.onChange(this.state.htmlValue);
     });
   };
+
+
+
 
   render () {
     return (
