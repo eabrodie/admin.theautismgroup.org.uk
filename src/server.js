@@ -6,6 +6,7 @@ import cookieSession from 'cookie-session';
 import express from 'express';
 import github from 'github-basic';
 import base64decode from 'base64-decode';
+import toml from 'toml';
 
 var client = github({version: 3});
 var app = express();
@@ -94,7 +95,9 @@ app.get('/content-types', (req, res) => {
           owner:'eabrodie',
           repo:'theautismgroup.org.uk',
           path:'content/' + file.name
-        }).then(file => base64decode(file.content))
+        }).then(file =>
+          ({name:file.name.replace(/\.toml$/, ''), content:toml.parse(base64decode(file.content))})
+        )
       )
     )
   ).done(result => res.json(result));
