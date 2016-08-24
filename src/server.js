@@ -51,13 +51,7 @@ app.use(cookieSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.sendFile(resolve(__dirname + '/../index.html'));
-  } else {
-    res.redirect('/auth/github');
-  }
-});
+
 
 app.get(
   '/auth/github',
@@ -103,5 +97,11 @@ app.get('/content-types', (req, res) => {
   ).done(result => res.json(result));
 });
 
-
+app.get('*', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.sendFile(resolve(__dirname + '/../index.html'));
+  } else {
+    res.redirect('/auth/github');
+  }
+});
 module.exports = app.listen(process.env.PORT || 3000);
