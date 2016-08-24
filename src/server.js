@@ -96,7 +96,7 @@ app.get('/content-types', (req, res) => {
           repo:'theautismgroup.org.uk',
           path:'content/' + file.name
         }).then(file =>
-          ({name:file.name.replace(/\.toml$/, ''), content:toml.parse(base64decode(file.content))})
+          ({id:file.name.replace(/\.toml$/, ''), content:toml.parse(base64decode(file.content))})
         )
       )
     )
