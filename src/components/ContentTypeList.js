@@ -2,14 +2,13 @@ import React, {Component, PropTypes} from 'react';
 import request from 'then-request';
 
 class ContentTypeList extends Component {
-  state = {value: '<p>My Page</p>',
-            content:[]};
+  state = {contentTypes:[]};
 
   componentDidMount () {
     request('GET', '/content-types').getBody('utf8').then(JSON.parse).done(
-      items => {
+      contentTypes => {
         this.setState({
-          content: items
+          contentTypes: contentTypes
         });
       },
       err => console.log(err)
@@ -20,7 +19,7 @@ class ContentTypeList extends Component {
     return (
       <div>
         <h1>{this.props.params.contentType}</h1>
-        <h2>{this.state.content}</h2>//???
+        <a href={'/' + this.props.params.contentType + '/new'}>Add new {this.props.params.contentType}</a>
       </div>
     )
   }

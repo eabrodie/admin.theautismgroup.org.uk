@@ -8,7 +8,6 @@ import github from 'github-basic';
 import base64decode from 'base64-decode';
 import toml from 'toml';
 
-var client = github({version: 3});
 var app = express();
 
 if (process.env.NODE_ENV === 'production') {
@@ -73,10 +72,21 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
+app.use( (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    res.redirect('/auth/github');
+    return;
+  }
+  req.githubclient = github({
+    version: 3,
+    auth: req.user.accessToken
+  });
+  next()
+})
 
 app.get('/content-types', (req, res) => {
   //https://api.github.com/repos/eabrodie/theautismgroup.org.uk/contents/content
-  client.get('/repos/:owner/:repo/contents/:path', {
+  req.githubclient.get('/repos/:owner/:repo/contents/:path', {
     owner:'eabrodie',
     repo:'theautismgroup.org.uk',
     path:'content'
@@ -85,7 +95,7 @@ app.get('/content-types', (req, res) => {
       files.filter(
         file => /\.toml$/.test(file.name)
       ).map(
-        file => client.get('/repos/:owner/:repo/contents/:path', {
+        file => req.githubclient.get('/repos/:owner/:repo/contents/:path', {
           owner:'eabrodie',
           repo:'theautismgroup.org.uk',
           path:'content/' + file.name

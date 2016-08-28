@@ -2,14 +2,13 @@ import React, {Component, PropTypes} from 'react';
 import request from 'then-request';
 
 class App extends Component {
-  state = {value: '<p>My Page</p>',
-            content:[]};
+  state = {contentTypes:[]};
 
   componentDidMount () {
     request('GET', '/content-types').getBody('utf8').then(JSON.parse).done(
-      items => {
+      contentTypes => {
         this.setState({
-          content: items
+          contentTypes: contentTypes
         });
       },
       err => console.log(err)
@@ -20,8 +19,8 @@ class App extends Component {
     return (
       <div>
         <ul>
-          {this.state.content.map(contentType => {
-            return <li key={contentType.id}><a href={contentType.id +'/new'}>Add new {contentType.content.name}</a></li>;
+          {this.state.contentTypes.map(contentType => {
+            return <li key={contentType.id}><a href={contentType.id}>{contentType.content.name}</a></li>;
           })}
         </ul>
       </div>
