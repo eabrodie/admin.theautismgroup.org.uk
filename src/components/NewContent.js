@@ -8,9 +8,10 @@ You can get a list of fields using Object.keys On the fields object
 
 import React, {Component, PropTypes} from 'react';
 import request from 'then-request';
+import Editor from './editors/Editor';
 
 class NewContent extends Component {
-  state = {contentType:null};
+  state = {contentType:null, fieldState:{}};
 
   componentDidMount () {
     request('GET', '/content-types').getBody('utf8').then(JSON.parse).done(
@@ -23,11 +24,12 @@ class NewContent extends Component {
           }
         })
       },
-
-
-
       err => console.log(err)
     );
+  }
+
+  _onChange = (name, value) => {
+    this.setState({fieldState:{...this.state.fieldState, [name]:value}})
   }
 
   render() {
@@ -40,11 +42,22 @@ class NewContent extends Component {
     }
     return (
       <div>
-        <ul>
-            <li key={this.state.contentType.id}><a href={this.state.contentType.id}>{this.state.contentType.content.name}</a></li>
-        </ul>
-        <h1>{this.state.contentType.content.name}</h1>
-        {Object.keys(this.state.contentType.content.fields)}
+        <h1>{this.state.contentType.name}</h1>
+
+        <form>
+          {Object.keys(this.state.contentType.fields).map(key => {
+            return (
+              <Editor
+                key={key}
+                fieldName={key}
+                type={this.state.contentType.fields[key]}
+                value={this.state.fieldState[key]}
+                onChange={this._onChange}
+              />
+            );
+          })}
+        </form>
+
       </div>
     )
   }

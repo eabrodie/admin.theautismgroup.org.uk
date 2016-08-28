@@ -1,12 +1,14 @@
 import React, {Component, PropTypes} from 'react';
-import ReactDOM from 'react-dom';
 import RichTextEditor from 'react-rte-browserify';
-import request from 'then-request';
 
 class HTMLEditor extends Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
+  };
+
+  static defaultProps = {
+    value: '',
   };
 
   constructor (props) {
@@ -43,35 +45,6 @@ class HTMLEditor extends Component {
       />
     );
   }
-};
-
-class App extends Component {
-  state = {value: '<p>My Page</p>'};
-
-  _onChange = (value) => {
-    this.setState({value});
-  }
-
-  render() {
-    return (
-      <div>
-        <HTMLEditor value={this.state.value} onChange={this._onChange} />
-        <textarea
-          style={{
-            display: 'block',
-            width: '100%',
-            boxSizing: 'border-box',
-            marginTop: 8,
-          }}
-          value={this.state.value}
-          onChange={e => this._onChange(e.target.value)}
-        />
-      </div>
-    )
-  }
 }
 
-ReactDOM.render(
-  <App />,
-  container
-);
+export default HTMLEditor;

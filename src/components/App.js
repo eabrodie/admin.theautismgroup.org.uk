@@ -20,7 +20,7 @@ class App extends Component {
       <div>
         <ul>
           {this.state.contentTypes.map(contentType => {
-            return <li key={contentType.id}><a href={contentType.id}>{contentType.content.name}</a></li>;
+            return <li key={contentType.id}><a href={contentType.id}>{contentType.name}</a></li>;
           })}
         </ul>
       </div>
