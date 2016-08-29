@@ -1,17 +1,13 @@
-/*
-On the new page, you want to load the details for the selected content type.
-You can do this by making a request to the same API then looping through the array
-to find the matching ID.  Then you can render a heading with the name of the
-content type and a <form> element containing a <label> element for each of the fields
-You can get a list of fields using Object.keys On the fields object
-*/
-
 import React, {Component, PropTypes} from 'react';
 import request from 'then-request';
 import Editor from './editors/Editor';
+import {browserHistory} from 'react-router';
 
 class NewContent extends Component {
-  state = {contentType:null, fieldState:{}};
+  state = {contentType:null,
+    fieldState:{contentType:this.props.params.contentType},
+    submitState:null
+  };
 
   componentDidMount () {
     request('GET', '/content-types').getBody('utf8').then(JSON.parse).done(
@@ -34,9 +30,23 @@ class NewContent extends Component {
 
   _onSubmit = (e) => {
     e.preventDefault();
-    request('POST', '/create/', {
-        json: {fieldState: this.state.fieldState}
-      })
+    if (this.state.fieldState.title) {
+      this.setState({submitState:'Saving'});
+      request('POST', '/create/', {
+          json: this.state.fieldState
+      }).getBody().then(JSON.parse).done(
+        (res)=> {
+          if (res.success) {
+            browserHistory.push('/'+ this.props.params.contentType);
+          } else {
+            this.setState({submitState:res.message})
+          }
+        },
+        ()=>this.setState({submitState:'Error: Something went wrong. File not saved'})
+      );
+    } else {
+      this.setState({submitState:'Error: Title is required'})
+    }
   }
 
   render() {
@@ -64,8 +74,7 @@ class NewContent extends Component {
             );
           })}
 
-          <button type='submit'>Save</button>
-
+          <button type='submit'>Save</button> {this.state.submitState}
         </form>
 
       </div>

@@ -7,7 +7,8 @@ import express from 'express';
 import github from 'github-basic';
 import base64decode from 'base64-decode';
 import toml from 'toml';
-import bodyParser from 'body-parser'
+import bodyParser from 'body-parser';
+import slug from 'slug';
 
 var app = express();
 
@@ -51,8 +52,6 @@ app.use(cookieSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
 app.get(
   '/auth/github',
   passport.authenticate('github', {
@@ -90,7 +89,7 @@ app.get('/content-types', (req, res) => {
   req.githubclient.get('/repos/:owner/:repo/contents/:path', {
     owner:'eabrodie',
     repo:'theautismgroup.org.uk',
-    path:'content'
+    path:'content-types'
   }).then(
     files => Promise.all(
       files.filter(
@@ -99,7 +98,30 @@ app.get('/content-types', (req, res) => {
         file => req.githubclient.get('/repos/:owner/:repo/contents/:path', {
           owner:'eabrodie',
           repo:'theautismgroup.org.uk',
-          path:'content/' + file.name
+          path:'content-types/' + file.name
+        }).then(file =>
+          ({id:file.name.replace(/\.toml$/, ''), ...toml.parse(base64decode(file.content))})
+        )
+      )
+    )
+  ).done(result => res.json(result));
+});
+
+app.get('/content-types', (req, res) => {
+  //https://api.github.com/repos/eabrodie/theautismgroup.org.uk/contents/content
+  req.githubclient.get('/repos/:owner/:repo/contents/:path', {
+    owner:'eabrodie',
+    repo:'theautismgroup.org.uk',
+    path:'content-types'
+  }).then(
+    files => Promise.all(
+      files.filter(
+        file => /\.toml$/.test(file.name)
+      ).map(
+        file => req.githubclient.get('/repos/:owner/:repo/contents/:path', {
+          owner:'eabrodie',
+          repo:'theautismgroup.org.uk',
+          path:'content-types/' + file.name
         }).then(file =>
           ({id:file.name.replace(/\.toml$/, ''), ...toml.parse(base64decode(file.content))})
         )
@@ -116,8 +138,40 @@ app.get('*', (req, res) => {
   }
 });
 
-app.post('/create', bodyParser.json(), (req, res) => {
-  console.dir(req.body);
+app.post('/create', bodyParser.json(), (req, res, next) => {
+  console.log('Send');
+
+  req.githubclient.get('/repos/:owner/:repo/contents/:path', {
+    owner:'eabrodie',
+    repo:'theautismgroup.org.uk',
+    path:'content/' +  req.body.contentType + '/' + slug(req.body.title)
+  }).then(
+    ()=>{
+      const err = new Error('Content already exists with this title');
+      err.code = 'ALREADY_EXISTS';
+      throw err;
+    },
+    ()=>null
+  ).then(
+    () => req.githubclient.commit('eabrodie', 'theautismgroup.org.uk', {
+      message: 'Editor',
+      updates: [
+        {
+          path:'content/' +  req.body.contentType + '/' + slug(req.body.title),
+          content: JSON.stringify(req.body, null, '  ')
+        }
+      ]
+    })
+  ).done(
+    ()=>res.json({success: true}),
+    (err) => {
+      if (err.code === 'ALREADY_EXISTS') {
+        res.json({success: false, message: 'Content already exists with this title'});
+      } else {
+        next(err);
+      }
+    }
+  );
 });
 
 module.exports = app.listen(process.env.PORT || 3000);

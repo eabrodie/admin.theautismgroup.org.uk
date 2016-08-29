@@ -18,6 +18,7 @@
     "react-dom": "^15.2.1",
     "react-router": "^2.7.0",
     "react-rte-browserify": "^0.5.0",
+    "slug": "^0.9.1",
     "then-request": "^2.2.0",
     "toml": "^2.3.0"
   },
