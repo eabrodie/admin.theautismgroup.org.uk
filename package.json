@@ -5,6 +5,7 @@
   "dependencies": {
     "babelify": "^7.3.0",
     "base64-decode": "^1.0.2",
+    "body-parser": "^1.15.2",
     "browserify": "^13.0.1",
     "browserify-middleware": "^7.0.0",
     "cookie-session": "^2.0.0-alpha.1",

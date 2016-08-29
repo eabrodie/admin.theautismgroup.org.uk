@@ -7,6 +7,7 @@ import express from 'express';
 import github from 'github-basic';
 import base64decode from 'base64-decode';
 import toml from 'toml';
+import bodyParser from 'body-parser'
 
 var app = express();
 
@@ -114,4 +115,9 @@ app.get('*', (req, res) => {
     res.redirect('/auth/github');
   }
 });
+
+app.post('/create', bodyParser.json(), (req, res) => {
+  console.dir(req.body);
+});
+
 module.exports = app.listen(process.env.PORT || 3000);

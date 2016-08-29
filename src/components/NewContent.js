@@ -32,6 +32,13 @@ class NewContent extends Component {
     this.setState({fieldState:{...this.state.fieldState, [name]:value}})
   }
 
+  _onSubmit = (e) => {
+    e.preventDefault();
+    request('POST', '/create/', {
+        json: {fieldState: this.state.fieldState}
+      })
+  }
+
   render() {
     if (this.state.contentType === null) {
       return (
@@ -44,7 +51,7 @@ class NewContent extends Component {
       <div>
         <h1>{this.state.contentType.name}</h1>
 
-        <form>
+        <form onSubmit={this._onSubmit}>
           {Object.keys(this.state.contentType.fields).map(key => {
             return (
               <Editor
@@ -56,6 +63,9 @@ class NewContent extends Component {
               />
             );
           })}
+
+          <button type='submit'>Save</button>
+
         </form>
 
       </div>
