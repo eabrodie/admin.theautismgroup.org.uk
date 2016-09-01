@@ -2,13 +2,13 @@ import React, {Component, PropTypes} from 'react';
 import request from 'then-request';
 
 class ContentTypeList extends Component {
-  state = {contentTypes:[]};
+  state = {existingFiles:[]};
 
   componentDidMount () {
-    request('GET', '/content-types').getBody('utf8').then(JSON.parse).done(
-      contentTypes => {
+    request('GET', '/get-content/' + this.props.params.contentType).getBody('utf8').then(JSON.parse).done(
+      existingFiles => {
         this.setState({
-          contentTypes: contentTypes
+          existingFiles: existingFiles
         });
       },
       err => console.log(err)
@@ -20,6 +20,11 @@ class ContentTypeList extends Component {
       <div>
         <h1>{this.props.params.contentType}</h1>
         <a href={'/' + this.props.params.contentType + '/new'}>Add new {this.props.params.contentType}</a>
+        <ul>
+          {this.state.existingFiles.map(file => {
+            return <li key={file.id}><a href={file.contentType + '/' + file.id + '/edit/'}>{file.title}</a></li>;
+          })}
+        </ul>
       </div>
     )
   }

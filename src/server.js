@@ -106,24 +106,21 @@ app.get('/content-types', (req, res) => {
     )
   ).done(result => res.json(result));
 });
-
-app.get('/content-types', (req, res) => {
-  //https://api.github.com/repos/eabrodie/theautismgroup.org.uk/contents/content
+// get the names of all the files in the folder for that content type
+app.get('/get-content/:contentType', bodyParser.json(), (req, res) => {
   req.githubclient.get('/repos/:owner/:repo/contents/:path', {
     owner:'eabrodie',
     repo:'theautismgroup.org.uk',
-    path:'content-types'
+    path:'content/' + req.params.contentType
   }).then(
     files => Promise.all(
-      files.filter(
-        file => /\.toml$/.test(file.name)
-      ).map(
+      files.map(
         file => req.githubclient.get('/repos/:owner/:repo/contents/:path', {
           owner:'eabrodie',
           repo:'theautismgroup.org.uk',
-          path:'content-types/' + file.name
+          path:'content/' + req.params.contentType + '/'+ file.name
         }).then(file =>
-          ({id:file.name.replace(/\.toml$/, ''), ...toml.parse(base64decode(file.content))})
+          ({id:file.name, ...JSON.parse(base64decode(file.content))})
         )
       )
     )
@@ -139,8 +136,6 @@ app.get('*', (req, res) => {
 });
 
 app.post('/create', bodyParser.json(), (req, res, next) => {
-  console.log('Send');
-
   req.githubclient.get('/repos/:owner/:repo/contents/:path', {
     owner:'eabrodie',
     repo:'theautismgroup.org.uk',

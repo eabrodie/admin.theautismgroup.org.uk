@@ -11,6 +11,7 @@ ReactDOM.render(
     <Route path="/" component={App} />
     <Route path="/:contentType" component={ContentTypeList} />
     <Route path="/:contentType/new" component={NewContent} />
+    <Route path="/:contentType/:fileName/edit" component={NewContent} />
   </Router>
   ,
   container
