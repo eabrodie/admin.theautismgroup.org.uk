@@ -22,7 +22,7 @@ class ContentTypeList extends Component {
         <a href={'/' + this.props.params.contentType + '/new'}>Add new {this.props.params.contentType}</a>
         <ul>
           {this.state.existingFiles.map(file => {
-            return <li key={file.id}><a href={file.id + '/edit/'}>{file.title}</a></li>;
+            return <li key={file.id}><a href={'/' + this.props.params.contentType + '/' + file.id + '/edit'}>{file.title}</a></li>;
           })}
         </ul>
       </div>

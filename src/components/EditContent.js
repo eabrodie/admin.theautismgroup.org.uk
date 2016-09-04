@@ -4,7 +4,8 @@ import Editor from './editors/Editor';
 import {browserHistory} from 'react-router';
 
 class EditContent extends Component {
-  state = {contentType:null,
+  state = {
+    contentType:null,
     fieldState:null,
     submitState:null,
     existingFile:null
@@ -59,7 +60,7 @@ class EditContent extends Component {
   }
 
   render() {
-    if (this.state.contentType === null) {
+    if (this.state.contentType === null || this.state.fieldState === null) {
       return (
         <div>
           Loading
