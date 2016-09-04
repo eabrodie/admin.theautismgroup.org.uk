@@ -149,7 +149,7 @@ app.post('/create', bodyParser.json(), (req, res, next) => {
     ()=>null
   ).then(
     () => req.githubclient.commit('eabrodie', 'theautismgroup.org.uk', {
-      message: 'Editor',
+      message: 'New content from editor',
       updates: [
         {
           path:'content/' +  req.body.contentType + '/' + slug(req.body.title),
@@ -158,6 +158,27 @@ app.post('/create', bodyParser.json(), (req, res, next) => {
       ]
     })
   ).done(
+    ()=>res.json({success: true}),
+    (err) => {
+      if (err.code === 'ALREADY_EXISTS') {
+        res.json({success: false, message: 'Content already exists with this title'});
+      } else {
+        next(err);
+      }
+    }
+  );
+});
+
+app.post('/edit', bodyParser.json(), (req, res, next) => {
+  req.githubclient.commit('eabrodie', 'theautismgroup.org.uk', {
+    message: 'Edit from editor',
+    updates: [
+      {
+        path:'content/' +  req.body.contentType + '/' + req.body.id,
+        content: JSON.stringify(req.body, null, '  ')
+      }
+    ]
+  }).done(
     ()=>res.json({success: true}),
     (err) => {
       if (err.code === 'ALREADY_EXISTS') {

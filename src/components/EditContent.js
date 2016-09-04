@@ -5,16 +5,33 @@ import {browserHistory} from 'react-router';
 
 class EditContent extends Component {
   state = {contentType:null,
-    fieldState:{contentType:this.props.params.contentType},
-    submitState:null
+    fieldState:null,
+    submitState:null,
+    existingFile:null
   };
 
-  componentDidMount () {
+    componentDidMount () {
+      request('GET', '/content-types').getBody('utf8').then(JSON.parse).done(
+        contentTypes => {
+          contentTypes.forEach(contentType => {
+            if (contentType.id === this.props.params.contentType) {
+              this.setState({
+                contentType: contentType
+              });
+            }
+          })
+        },
+        err => console.log(err)
+      );
       request('GET', '/get-content/' + this.props.params.contentType).getBody('utf8').then(JSON.parse).done(
         existingFiles => {
-          this.setState({
-            existingFiles: existingFiles
-          });
+          existingFiles.forEach(existingFile => {
+            if (existingFile.id === this.props.params.fileName) {
+              this.setState({
+                fieldState: existingFile
+              });
+            }
+          })
         },
         err => console.log(err)
       );
@@ -26,23 +43,19 @@ class EditContent extends Component {
 
   _onSubmit = (e) => {
     e.preventDefault();
-    if (this.state.fieldState.title) {
-      this.setState({submitState:'Saving'});
-      request('POST', '/create/', {
-          json: this.state.fieldState
-      }).getBody().then(JSON.parse).done(
-        (res)=> {
-          if (res.success) {
-            browserHistory.push('/'+ this.props.params.contentType);
-          } else {
-            this.setState({submitState:res.message})
-          }
-        },
-        ()=>this.setState({submitState:'Error: Something went wrong. File not saved'})
-      );
-    } else {
-      this.setState({submitState:'Error: Title is required'})
-    }
+    this.setState({submitState:'Saving'});
+    request('POST', '/edit/', {
+        json: this.state.fieldState
+    }).getBody().then(JSON.parse).done(
+      (res)=> {
+        if (res.success) {
+          browserHistory.push('/'+ this.props.params.contentType);
+        } else {
+          this.setState({submitState:res.message})
+        }
+      },
+      ()=>this.setState({submitState:'Error: Something went wrong. File not saved'})
+    );
   }
 
   render() {
@@ -55,7 +68,7 @@ class EditContent extends Component {
     }
     return (
       <div>
-        <h1>{this.state.contentType.title}</h1>
+        <h1>Edit {this.state.contentType.name}</h1>
 
         <form onSubmit={this._onSubmit}>
           {Object.keys(this.state.contentType.fields).map(key => {
