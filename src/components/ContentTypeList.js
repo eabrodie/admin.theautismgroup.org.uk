@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import request from 'then-request';
+import {Link} from 'react-router';
 
 class ContentTypeList extends Component {
   state = {
@@ -32,7 +33,7 @@ class ContentTypeList extends Component {
 
   _renderListItems () {
     return this.state.existingFiles.map(file => {
-      return <li key={file.id}><a href={'/' + this.props.params.contentType + '/' + file.id + '/edit'}>{file.id}</a></li>;
+      return <li key={file.id}><Link to={'/' + this.props.params.contentType + '/' + file.id + '/edit'}>{file.id}</Link></li>;
     })
   }
 
@@ -51,7 +52,7 @@ class ContentTypeList extends Component {
         {
           (this.state.contentType.canCreate === false)
           ? null
-          : <p><a href={'/' + this.props.params.contentType + '/new'}>Add new {this.state.contentType.name}</a></p>
+          : <p><Link to={'/' + this.props.params.contentType + '/new'}>Add new {this.state.contentType.name}</Link></p>
         }
         <p>
           Choose an existing {this.state.contentType.name} to edit:

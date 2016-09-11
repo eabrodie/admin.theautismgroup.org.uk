@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import request from 'then-request';
+import {Link} from 'react-router';
 
 class App extends Component {
   state = {contentTypes:[]};
@@ -21,7 +22,7 @@ class App extends Component {
       Select a type of content to edit:
         <ul>
           {this.state.contentTypes.map(contentType => {
-            return <li key={contentType.id}><a href={contentType.id}>{contentType.name}</a></li>;
+            return <li key={contentType.id}><Link to={contentType.id}>{contentType.name}</Link></li>;
           })}
         </ul>
       </div>
