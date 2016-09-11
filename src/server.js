@@ -84,7 +84,7 @@ app.use( (req, res, next) => {
   next()
 })
 
-app.get('/content-types', (req, res) => {
+app.get('/content-types', (req, res, next) => {
   //https://api.github.com/repos/eabrodie/theautismgroup.org.uk/contents/content
   req.githubclient.get('/repos/:owner/:repo/contents/:path', {
     owner:'eabrodie',
@@ -104,10 +104,10 @@ app.get('/content-types', (req, res) => {
         )
       )
     )
-  ).done(result => res.json(result));
+  ).done(result => res.json(result), next);
 });
 // get the names of all the files in the folder for that content type
-app.get('/get-content/:contentType', bodyParser.json(), (req, res) => {
+app.get('/get-content/:contentType', bodyParser.json(), (req, res, next) => {
   req.githubclient.get('/repos/:owner/:repo/contents/:path', {
     owner:'eabrodie',
     repo:'theautismgroup.org.uk',
@@ -124,7 +124,7 @@ app.get('/get-content/:contentType', bodyParser.json(), (req, res) => {
         )
       )
     )
-  ).done(result => res.json(result));
+  ).done(result => res.json(result), next);
 });
 
 app.get('*', (req, res) => {
@@ -153,7 +153,10 @@ app.post('/create', bodyParser.json(), (req, res, next) => {
       updates: [
         {
           path:'content/' +  req.body.contentType + '/' + slug(req.body.title),
-          content: JSON.stringify(req.body, null, '  ')
+          content: JSON.stringify({
+            ...req.body,
+            createdDate: new Date(),
+            updatedDate: new Date()}, null, '  ')
         }
       ]
     })
@@ -175,7 +178,7 @@ app.post('/edit', bodyParser.json(), (req, res, next) => {
     updates: [
       {
         path:'content/' +  req.body.contentType + '/' + req.body.id,
-        content: JSON.stringify(req.body, null, '  ')
+        content: JSON.stringify({...req.body, updatedDate: new Date()}, null, '  ')
       }
     ]
   }).done(
