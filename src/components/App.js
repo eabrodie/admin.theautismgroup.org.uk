@@ -18,6 +18,7 @@ class App extends Component {
   render() {
     return (
       <div>
+      Select a type of content to edit:
         <ul>
           {this.state.contentTypes.map(contentType => {
             return <li key={contentType.id}><a href={contentType.id}>{contentType.name}</a></li>;

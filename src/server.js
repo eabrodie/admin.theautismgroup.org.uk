@@ -123,7 +123,7 @@ app.get('/get-content/:contentType', bodyParser.json(), (req, res, next) => {
           ({id:file.name, ...JSON.parse(base64decode(file.content))})
         )
       )
-    )
+    ), ()=>null
   ).done(result => res.json(result), next);
 });
 

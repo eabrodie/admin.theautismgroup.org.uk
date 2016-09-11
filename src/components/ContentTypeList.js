@@ -47,12 +47,15 @@ class ContentTypeList extends Component {
     }
     return (
       <div>
-        <h1>{this.props.params.contentType}</h1>
+        <h1>{this.state.contentType.name}</h1>
         {
           (this.state.contentType.canCreate === false)
           ? null
-          : <a href={'/' + this.props.params.contentType + '/new'}>Add new {this.props.params.contentType}</a>
+          : <p><a href={'/' + this.props.params.contentType + '/new'}>Add new {this.state.contentType.name}</a></p>
         }
+        <p>
+          Choose an existing {this.state.contentType.name} to edit:
+        </p>
         <ul>
           {this._renderListItems()}
         </ul>
